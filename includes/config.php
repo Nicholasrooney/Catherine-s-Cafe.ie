@@ -1,0 +1,439 @@
+<?php
+/*
+ * Catherine's Café & Bakery: site settings
+ * Edit the values below. Anything left as '' (empty) is hidden on the site.
+ */
+
+$site = [
+    'name'      => "Catherine's Café & Bakery",
+    'domain'    => 'catherinescafe.ie',
+    'instagram' => 'https://www.instagram.com/catherinescafebakery/',
+    'facebook'  => 'https://www.facebook.com/Catherinescafebakery/',
+
+    // Contact details (they appear in the footer and on the home page)
+    'address'   => '16/17 Meath Street, The Liberties, Dublin 8',
+    'eircode'   => 'D08 K2E9',
+    'phone'     => '01 534 3835',
+    'email'     => '',   // e.g. 'hello@catherinescafe.ie' once the mailbox exists
+    'maps_url'  => 'https://www.google.com/maps/search/?api=1&query=Catherine%27s+Cafe+%26+Bakery%2C+16%2F17+Meath+Street%2C+Dublin+D08+K2E9',
+
+    // Optional but recommended: the exact pin, as "latitude,longitude".
+    // Right-click the café in Google Maps and copy the numbers. When set,
+    // directions use this instead of the address text.
+    'coords'    => '',
+
+    // Show prices on the menu and the catering page? Everything price-related
+    // follows this one switch: menu prices, the home page dishes, the catering
+    // price card, emails, and the prices sent to Google.
+    'show_prices' => true,
+
+    // Opening hours are NOT set here. They come from $booking['service_hours']
+    // below, so the hours shown on the site, the hours Google is told, and the
+    // times the booking form offers can never disagree with each other.
+    'hours' => [],
+];
+
+/*
+ * Where people can order online. Every "Order online" block on the site comes
+ * from this list, shown side by side in this order. Each tap is counted on the
+ * stats page by platform, so you can see which one people pick.
+ *
+ * Remove a line to take that platform off the site, or leave 'url' empty to
+ * hide it without deleting it.
+ */
+$ordering = [
+    'flipdish'  => ['label' => 'Order direct', 'sub' => 'Our own ordering site, collection or delivery', 'url' => 'https://www.catherines-cafe-bakery.ie/'],
+    'justeat'   => ['label' => 'Just Eat',     'sub' => 'Delivery or collection',                       'url' => 'https://www.just-eat.ie/restaurants-catherines-cafe-and-bakery-dublin-8/menu'],
+    'deliveroo' => ['label' => 'Deliveroo',    'sub' => 'Delivery',                                     'url' => ''],   // TODO: paste the Deliveroo listing link
+];
+
+// Booking form options
+$booking = [
+    /*
+     * Opening hours, per day. [open, close] in 24-hour time, or null if the
+     * café is closed that day. This is the single source of truth: it drives
+     * the hours on the site, the hours Google shows, and the slots the booking
+     * form offers.
+     *
+     * TO CONFIRM WITH CATHERINE. These are the hours published on
+     * libertiesdublin.ie (Oct 2026). Other listings disagree, so check before
+     * going live.
+     */
+    'service_hours' => [
+        'mon' => ['07:30', '17:30'],
+        'tue' => ['07:30', '17:30'],
+        'wed' => ['07:30', '17:30'],
+        'thu' => ['07:30', '17:30'],
+        'fri' => ['07:30', '17:30'],
+        'sat' => ['08:00', '17:30'],
+        'sun' => ['09:00', '17:30'],
+    ],
+
+    // How often a slot comes round, in minutes.
+    'slot_minutes' => 30,
+
+    // The last booking is this many minutes before closing.
+    'last_booking_before_close' => 60,
+
+    // Which days the staff "Pause this weekend" button covers.
+    'weekend_days' => ['fri', 'sat', 'sun'],
+
+    // What a customer is told when the weekend has been paused from the
+    // staff area. Keep it the same shape as the messages below.
+    'weekend_paused_message' => 'We are not taking any more bookings this weekend.',
+
+    /*
+     * One-off dates the café will not take new bookings for, on top of the
+     * normal closed days and the staff weekend toggle. Format:
+     *     '2026-12-25' => 'We are closed for Christmas.',
+     */
+    'no_bookings_dates' => [],
+
+    // Filled in below from service_hours. Do not edit by hand.
+    'times' => [],
+    'max_guests'        => 4,   // bigger groups are asked to get in touch
+    'days_ahead'        => 60,  // how far in advance people can book
+
+    'seating'           => ['Inside', 'Outside (weather permitting)', 'No preference'],
+
+    // How long a table is held when the café is busy, which is usually at
+    // weekends. Shown on the booking page and in the confirmation email.
+    'table_minutes'     => 60,
+
+    // Bookings are saved here until the backend is connected.
+    // The data folder is blocked from public access by data/.htaccess
+    'csv_file'          => __DIR__ . '/../data/bookings.csv',
+
+    // Who is emailed when a TABLE BOOKING comes in. Each person gets their own
+    // copy. Catering enquiries have their own list in $catering below.
+    'notify_email'      => [
+        'nicholas.rooney2010@gmail.com',
+    ],
+
+    // Who is emailed when staff CHANGE a booking — cancelled, no-show, or
+    // edited. Add Catherine's address here once we have it.
+    'change_notify_email' => [
+        'nicholas.rooney2010@gmail.com',
+    ],
+
+    /*
+     * How many bookings the café takes in one hour, whatever their size.
+     * Slots come round every half hour, so 13:00 and 13:30 share the 13:00
+     * hour and together use up its two bookings.
+     *
+     * The public form stops offering a time once its hour is full. Staff can
+     * still override, and the override is recorded.
+     */
+    'max_bookings_per_hour' => 2,
+
+    // Customer details are anonymised this many months after their last visit.
+    'retention_months'    => 24,
+];
+
+/*
+ * Database. Create it in hPanel > Databases > MySQL Databases, then run
+ * db/schema.sql through phpMyAdmin. See docs/database-setup.md.
+ *
+ * Credentials belong in includes/secrets/db.php, which is gitignored — see the
+ * bottom of this file.
+ */
+$db = [
+    'driver'  => 'mysql',
+    'host'    => 'localhost',
+    'name'    => '',
+    'user'    => '',
+    'pass'    => '',
+    'charset' => 'utf8mb4',
+    'path'    => '',   // only used when driver is 'sqlite' (the test suite)
+];
+
+/*
+ * Staff area at /staff/.
+ *
+ * Generate the hash by visiting /staff/hash.php, then paste it here. Never put
+ * the plain password in this file.
+ */
+$staff = [
+    'password_hash'   => '',
+    'session_hours'   => 12,
+    'max_attempts'    => 5,
+    'lockout_minutes' => 15,
+];
+
+/*
+ * Outgoing email.
+ *
+ * Fill in 'from' with a mailbox on this domain — mail claiming to come from a
+ * gmail.com address will be treated as forged and binned.
+ *
+ * SMTP is strongly preferred over bare mail(): create the mailbox in hPanel >
+ * Emails, then put its details here. Leave smtp.host empty to use mail().
+ * Either way, set SPF and DKIM for the domain or confirmations go to spam.
+ */
+$mail = [
+    /*
+     * 'from' MUST be on this domain. A message claiming to come from a
+     * gmail.com address but sent through Hostinger fails SPF and gets binned
+     * or spam-filed — so the café's own address sends it, and replies are
+     * pointed at Nicholas's inbox instead.
+     *
+     * This address does not need a mailbox to send from. Create one at
+     * hPanel > Emails when you want to receive at it too, then fill in the
+     * smtp block below.
+     */
+    'from'      => 'bookings@catherinescafe.ie',
+    'from_name' => "Catherine's Café & Bakery",
+    'reply_to'  => 'nicholas.rooney2010@gmail.com',
+    'log_file'  => __DIR__ . '/../data/mail.log',
+
+    'smtp' => [
+        // Hostinger's outgoing mail server. Takes effect once 'user' below is
+        // filled in with the mailbox address and the password is set in
+        // includes/secrets/db.php.
+        'host'     => 'smtp.hostinger.com',
+        'port'     => 587,
+        'security' => 'tls',        // 'tls' (STARTTLS), 'ssl', or '' for none
+        'user'     => '',           // the full email address
+        'pass'     => '',           // put this in includes/secrets/db.php
+        'timeout'  => 10,
+    ],
+];
+
+/*
+ * Google Calendar sync (one way: website -> Google).
+ *
+ * Setup is documented in docs/google-calendar-setup.md. In short: create a
+ * service account, put its JSON key at the path below, then share the calendar
+ * with the service account's email address giving it "Make changes to events".
+ *
+ * Leave 'enabled' false until the key file is in place. Sync failures never
+ * block a booking either way — they are written to the log file instead.
+ */
+$calendar = [
+    'enabled'          => false,
+    'calendar_id'      => '',   // from Google Calendar > Settings > Integrate calendar
+    'key_file'         => __DIR__ . '/secrets/google-service-account.json',
+    'token_cache'      => __DIR__ . '/../data/.google-token.json',
+    'log_file'         => __DIR__ . '/../data/calendar-sync.log',
+    'timezone'         => 'Europe/Dublin',
+    'duration_minutes' => 60,   // how long a table is held in the calendar
+
+    // Token for calendar-test.php. Set to a long random string to run the test
+    // page, then blank it again when you are finished.
+    'test_token'       => '',
+];
+
+/*
+ * Google Analytics 4. Not a secret — it appears in every page's source.
+ * Loaded only after a visitor accepts cookies; see includes/analytics.php.
+ * Leave empty to switch analytics off entirely.
+ */
+$analytics = [
+    'ga4_id' => '',   // e.g. 'G-ABC123XYZ' once the GA4 property is created
+];
+
+/*
+ * Event catering (event-catering.php).
+ *
+ * Package prices are NOT typed here. Each package names the menu dishes it is
+ * built from, and its "from" price per person is read live from
+ * includes/menu-data.php: the cheapest dish in each group, added together.
+ * Change a price on the menu and the catering price follows, so the two can
+ * never disagree.
+ *
+ * If a named dish is ever removed from the menu, that package shows
+ * "price on request" instead of a wrong number.
+ */
+$catering = [
+    /*
+     * Is the cakes & catering page live?
+     *
+     * false takes event-catering.php offline: it answers 404, the nav link
+     * and the home page panel disappear, and it drops out of the sitemap.
+     */
+    'enabled' => true,
+
+    // Who is emailed when a CAKE OR CATERING ENQUIRY comes in.
+    'notify_email' => [
+        'nicholas.rooney2010@gmail.com',
+    ],
+
+    'min_guests' => 6,
+    'max_guests' => 150,
+
+    // Pills on the price card. Each suggests a starting package; the visitor
+    // can switch.
+    'occasions' => [
+        'birthday'       => ['label' => 'Birthday cake',            'package' => 'celebration_cake'],
+        'office_brekkie' => ['label' => 'Office breakfast',         'package' => 'breakfast_rolls'],
+        'office_lunch'   => ['label' => 'Office lunch',             'package' => 'sandwich_platters'],
+        'communion'      => ['label' => 'Communion or christening', 'package' => 'celebration_cake'],
+        'meeting'        => ['label' => 'Meeting or morning',       'package' => 'coffee_bakery'],
+        'other'          => ['label' => 'Something else',           'package' => 'hot_lunch'],
+    ],
+
+    // 'price_from' is a list of groups: the price per person is the cheapest
+    // dish in each group, summed. No groups = "price on request". Bakery
+    // prices are not published anywhere yet, so the bakery packages ask.
+    'packages' => [
+        'celebration_cake' => [
+            'name'       => 'Celebration cake',
+            'includes'   => 'A fresh cream or sponge cake from our bakery, written and decorated for the day',
+            'price_from' => [],
+        ],
+        'breakfast_rolls' => [
+            'name'       => 'Breakfast roll platters',
+            'includes'   => 'A breakfast roll or bap each, with veggie rolls on request',
+            'price_from' => [['Breakfast Bap', 'Breakfast Roll', 'Veggie Breakfast Roll']],
+        ],
+        'sandwich_platters' => [
+            'name'       => 'Sandwich platters',
+            'includes'   => 'A filled ciabatta or sambo each from the lunch menu, cut for sharing',
+            'price_from' => [['Pulled Ham and Cheese', 'BLT', 'Grilled Mozzarella', 'Roast Veg Sambo', 'Club Sambo', 'Chicken and Chorizo']],
+        ],
+        'hot_lunch' => [
+            'name'       => 'Hot lunch',
+            'includes'   => 'Curry, lasagne or beef stew each, with rice, chips or soda bread',
+            'price_from' => [['Chicken Curry', 'Chicken Thai Curry', 'Vegetable and Tofu Curry', 'Beef Lasagne', 'Beef Stew']],
+        ],
+        'coffee_bakery' => [
+            'name'       => 'Coffee & bakery',
+            'includes'   => 'A cream cake, slice or pastry and a tea or coffee each',
+            'price_from' => [],
+        ],
+    ],
+
+    /*
+     * Catering videos. The video section stays hidden until something is listed
+     * here. Either:
+     *     ['title' => 'Cake for a christening', 'file' => 'videos/cake.mp4', 'poster' => 'images/cake.jpg'],
+     *     ['title' => 'Office breakfast for 30', 'youtube' => 'dQw4w9WgXcQ'],
+     */
+    'videos' => [],
+];
+
+/*
+ * ROI stats (/staff/stats.php).
+ *
+ * Every tap on the directions, order, phone, menu and booking buttons is
+ * counted on our own server, with no cookies and nothing personal stored, so
+ * nobody is missed for declining the cookie banner. These are only the
+ * starting values for the money side of the dashboard; they can be changed on
+ * the stats page itself.
+ */
+$stats = [
+    'enabled' => true,
+
+    'defaults' => [
+        'avg_spend_per_head'   => 14.00,  // € per person eating in
+        'avg_order_value'      => 22.00,  // € per online order
+        'order_tap_conversion' => 35,     // % of "order online" taps that become an order
+        'directions_visit'     => 40,     // % of "directions" taps that turn up
+        'call_conversion'      => 30,     // % of calls that become a sale
+        'monthly_cost'         => 0.00,   // € the website and marketing cost a month
+    ],
+];
+
+/*
+ * Everything below is derived from service_hours. One source of truth: change
+ * the hours above and the site, the schema and the booking form all follow.
+ */
+require_once __DIR__ . '/hours.php';
+
+$site['hours']     = hours_display($booking['service_hours']);
+$booking['times']  = hours_all_slots($booking['service_hours']);
+
+/*
+ * Credentials live outside this file so they never reach Git.
+ *
+ * Preferred location is one level above public_html, where the web server
+ * cannot serve it at all. includes/secrets/db.php is the fallback; it is
+ * gitignored and blocked by .htaccess.
+ *
+ * The file just overrides what it needs, for example:
+ *
+ *     <?php
+ *     $db['name'] = 'u123_catherines';
+ *     $db['user'] = 'u123_catherines';
+ *     $db['pass'] = '...';
+ *     $staff['password_hash'] = '$2y$...';
+ */
+foreach ([__DIR__ . '/../../private/secrets.php', __DIR__ . '/secrets/db.php'] as $secretsFile) {
+    if (is_readable($secretsFile)) {
+        require $secretsFile;
+        break;
+    }
+}
+
+function e($value) {
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * A stylesheet or script URL with a version stamp on it.
+ *
+ * .htaccess tells browsers to keep CSS and JS for a week, which is right for
+ * speed and wrong the moment we change one: returning visitors keep the old
+ * file until it expires. Stamping the modification time onto the URL makes an
+ * edited file a different URL, so it is fetched immediately and an unchanged
+ * one still comes from cache.
+ *
+ * Returns a ROOT-relative URL. It must be root-relative: a page at /staff/
+ * asking for 'staff/staff.css' would look for /staff/staff/staff.css.
+ *
+ * @param string $path  from the web root, e.g. 'css/style.css'
+ */
+function asset(string $path): string
+{
+    $path  = ltrim($path, '/');
+    $file  = __DIR__ . '/../' . $path;
+    $stamp = is_file($file) ? filemtime($file) : time();
+    return '/' . $path . '?v=' . $stamp;
+}
+
+/**
+ * How a stored seating value should read now.
+ *
+ * Bookings taken before the seating options were renamed still hold the old
+ * wording — "Booth inside" from when booths were on the form, and the longer
+ * "Stools inside" / "Table outside". They are relabelled here so old bookings
+ * read the same as new ones, whether or not db/relabel-seating.php has been
+ * run against the live database.
+ */
+function booking_seating_label(?string $seating): string
+{
+    $seating = trim((string) $seating);
+    if ($seating === '') {
+        return 'No preference';
+    }
+
+    $legacy = [
+        'booth inside'  => 'Stools',
+        'booth'         => 'Stools',
+        'stools inside' => 'Stools',
+        'table outside' => 'Table',
+        'table inside'  => 'Table',
+    ];
+
+    return $legacy[mb_strtolower($seating)] ?? $seating;
+}
+
+/**
+ * Whether prices are shown anywhere on the site. See $site['show_prices'].
+ */
+function show_prices(): bool
+{
+    global $site;
+    return !empty($site['show_prices']);
+}
+
+/**
+ * Takes the euro amounts out of a line of menu text, for when prices are off:
+ *
+ *     "Add bacon +€3.50 or salmon +€5.00"  ->  "Add bacon or salmon"
+ */
+function strip_prices(string $text): string
+{
+    $text = preg_replace('/\s*\+?\s*€\s*\d+(?:[.,]\d{1,2})?/u', '', $text);
+    return trim(preg_replace('/\s{2,}/', ' ', $text));
+}
