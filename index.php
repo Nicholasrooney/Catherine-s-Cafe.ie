@@ -52,7 +52,7 @@ $featured = [
         <?php endif; ?>
     </div>
     <div class="hero-photo">
-        <img src="images/full-irish-breakfast.jpg" alt="A full Irish breakfast at Catherine's: eggs, bacon, sausages, pudding and toast" width="1920" height="1280" fetchpriority="high">
+        <img src="images/shopfront-entrance.jpg" alt="The yellow Catherine's Café shopfront on Meath Street, door open and tables outside" width="684" height="853" fetchpriority="high">
     </div>
 </section>
 
@@ -124,7 +124,7 @@ $featured = [
 
 <section class="section inside">
     <div class="container inside-grid inside-grid-flip">
-        <img class="inside-photo" src="images/shopfront-entrance.jpg" alt="The yellow Catherine's Café shopfront on Meath Street with tables outside" width="684" height="853" loading="lazy">
+        <img class="inside-photo" src="images/breakfast-fry-with-coffee-table.jpg" alt="A full fry with tea and coffee on a table in the café" width="2000" height="1509" loading="lazy">
         <div class="inside-text">
             <h2>Come in and sit down</h2>
             <p>Tables inside and a few out front on Meath Street when the weather allows, a few steps from the Liberty Market. Everything is cooked to order.</p>
