@@ -25,6 +25,9 @@
                 <?php endif; ?>
             </p>
             <p><a href="order.php">Order online</a> · <a href="booking.php">Book a table</a></p>
+            <?php if (!empty($wholesale['enabled'])): ?>
+                <p><a href="wholesale.php">Wholesale for cafés &amp; shops</a></p>
+            <?php endif; ?>
         </div>
 
         <?php if (!empty($site['hours'])): ?>

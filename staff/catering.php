@@ -12,13 +12,22 @@ require_once __DIR__ . '/../includes/catering.php';
 staff_require_login();
 staff_require_database();
 
+require_once __DIR__ . '/../includes/wholesale.php';
+
 $filter = (string) ($_GET['status'] ?? 'new');
 if ($filter !== 'all' && !isset(catering_statuses()[$filter])) {
     $filter = 'new';
 }
 
+// Catering and wholesale enquiries share the table; this picks which to show.
+$kind = (string) ($_GET['kind'] ?? 'all');
+if (!in_array($kind, ['all', 'catering', 'wholesale'], true)) {
+    $kind = 'all';
+}
+$kindQs = $kind === 'all' ? '' : '&kind=' . $kind;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $back = 'catering.php?status=' . urlencode($filter);
+    $back = 'catering.php?status=' . urlencode($filter) . $kindQs;
 
     if (!staff_check_token($_POST['token'] ?? null)) {
         staff_flash('That action expired. Try again.');
@@ -48,29 +57,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $counts = catering_counts();
-$rows   = catering_list($filter === 'all' ? null : $filter);
+$rows   = catering_list($filter === 'all' ? null : $filter, 200, $kind === 'all' ? null : $kind);
 $flash  = staff_flash();
 
-staff_head('Catering', 'catering');
+staff_head('Catering & wholesale', 'catering');
 ?>
 
 <?php if ($flash): ?><p class="flash"><?= e($flash) ?></p><?php endif; ?>
 
-<h1>Catering enquiries</h1>
+<h1>Catering &amp; wholesale enquiries</h1>
+
+<nav class="tabs" aria-label="Filter by kind">
+    <?php foreach (['all' => 'Everything', 'catering' => 'Cakes & catering', 'wholesale' => 'Wholesale'] as $key => $label): ?>
+        <a href="?status=<?= e($filter) ?><?= $key === 'all' ? '' : '&amp;kind=' . e($key) ?>" class="<?= $kind === $key ? 'on' : '' ?>"><?= e($label) ?></a>
+    <?php endforeach; ?>
+</nav>
 
 <nav class="tabs" aria-label="Filter by status">
     <?php foreach (catering_statuses() as $key => $label): ?>
-        <a href="?status=<?= e($key) ?>" class="<?= $filter === $key ? 'on' : '' ?>">
+        <a href="?status=<?= e($key) ?><?= e($kindQs) ?>" class="<?= $filter === $key ? 'on' : '' ?>">
             <?= e($label) ?> <span class="count"><?= (int) $counts[$key] ?></span>
         </a>
     <?php endforeach; ?>
-    <a href="?status=all" class="<?= $filter === 'all' ? 'on' : '' ?>">All <span class="count"><?= array_sum($counts) ?></span></a>
+    <a href="?status=all<?= e($kindQs) ?>" class="<?= $filter === 'all' ? 'on' : '' ?>">All <span class="count"><?= array_sum($counts) ?></span></a>
 </nav>
 
 <?php if (!$rows): ?>
     <div class="card empty">
         <p><?= $filter === 'new' ? 'No new catering enquiries.' : 'Nothing here.' ?></p>
-        <p class="sub">Enquiries from the catering page land here, and you are emailed when one arrives.</p>
+        <p class="sub">Enquiries from the catering and wholesale pages land here, and you are emailed when one arrives.</p>
     </div>
 <?php endif; ?>
 
@@ -78,6 +93,10 @@ staff_head('Catering', 'catering');
     <?php
     $received = new DateTimeImmutable($r['created_at'], new DateTimeZone('Europe/Dublin'));
     $who      = $r['name'] !== '' ? $r['name'] : ($r['phone'] !== '' ? $r['phone'] : $r['email']);
+    $isTrade  = $r['source'] === 'wholesale';
+    if ($isTrade && ($r['business'] ?? '') !== '') {
+        $who = $r['business'] . ' · ' . $who;
+    }
     ?>
     <article class="card enquiry" id="enquiry-<?= (int) $r['id'] ?>">
         <header class="enquiry-head">
@@ -85,15 +104,25 @@ staff_head('Catering', 'catering');
                 <h2><?= e($who) ?></h2>
                 <p class="sub">
                     <?= e($received->format('D j M, H:i')) ?>
-                    · <?= $r['source'] === 'price_card' ? 'Quick price request' : 'Full enquiry' ?>
+                    · <?= $isTrade ? 'Wholesale enquiry' : ($r['source'] === 'price_card' ? 'Quick price request' : 'Full enquiry') ?>
                 </p>
             </div>
             <span class="tag tag-<?= e($r['status']) ?>"><?= e(catering_statuses()[$r['status']] ?? $r['status']) ?></span>
         </header>
 
         <dl class="enquiry-facts">
-            <div><dt>Occasion</dt><dd><?= e(catering_occasion_label($r['occasion'])) ?></dd></div>
-            <div><dt>Guests</dt><dd><?= (int) $r['guests'] ?></dd></div>
+            <?php if ($isTrade): ?>
+                <div><dt>Business</dt><dd><?= e(wholesale_type_label($r['business_type'] ?? '')) ?></dd></div>
+                <?php if (!empty($r['products'])): ?>
+                    <div class="wide"><dt>Interested in</dt><dd><?= e(wholesale_products_label($r['products'])) ?></dd></div>
+                <?php endif; ?>
+                <?php if (!empty($r['frequency'])): ?>
+                    <div><dt>How often</dt><dd><?= e(wholesale_frequency_label($r['frequency'])) ?></dd></div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div><dt>Occasion</dt><dd><?= e(catering_occasion_label($r['occasion'])) ?></dd></div>
+                <div><dt>Guests</dt><dd><?= (int) $r['guests'] ?></dd></div>
+            <?php endif; ?>
             <?php if (!empty($r['location'])): ?>
                 <div><dt>Location</dt><dd><?= e($r['location']) ?></dd></div>
             <?php endif; ?>
@@ -124,11 +153,11 @@ staff_head('Catering', 'catering');
                 <a class="btn-s btn-call" href="tel:<?= e(preg_replace('/[^0-9+]/', '', $r['phone'])) ?>">Call <?= e($r['phone']) ?></a>
             <?php endif; ?>
             <?php if ($r['email'] !== ''): ?>
-                <a class="btn-s" href="mailto:<?= e($r['email']) ?>?subject=<?= rawurlencode('Your catering enquiry — ' . $site['name']) ?>">Email <?= e($r['email']) ?></a>
+                <a class="btn-s" href="mailto:<?= e($r['email']) ?>?subject=<?= rawurlencode(($isTrade ? 'Your wholesale enquiry — ' : 'Your catering enquiry — ') . $site['name']) ?>">Email <?= e($r['email']) ?></a>
             <?php endif; ?>
         </div>
 
-        <form method="post" action="catering.php?status=<?= e($filter) ?>" class="status-do">
+        <form method="post" action="catering.php?status=<?= e($filter) ?><?= e($kindQs) ?>" class="status-do">
             <input type="hidden" name="token" value="<?= e(staff_token()) ?>">
             <input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
             <input type="hidden" name="action" value="status">
@@ -141,7 +170,7 @@ staff_head('Catering', 'catering');
             <?php endforeach; ?>
         </form>
 
-        <form method="post" action="catering.php?status=<?= e($filter) ?>" class="enquiry-notes">
+        <form method="post" action="catering.php?status=<?= e($filter) ?><?= e($kindQs) ?>" class="enquiry-notes">
             <input type="hidden" name="token" value="<?= e(staff_token()) ?>">
             <input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
             <input type="hidden" name="action" value="notes">
@@ -153,7 +182,7 @@ staff_head('Catering', 'catering');
             </div>
         </form>
 
-        <form method="post" action="catering.php?status=<?= e($filter) ?>" class="enquiry-delete">
+        <form method="post" action="catering.php?status=<?= e($filter) ?><?= e($kindQs) ?>" class="enquiry-delete">
             <input type="hidden" name="token" value="<?= e(staff_token()) ?>">
             <input type="hidden" name="id" value="<?= (int) $r['id'] ?>">
             <input type="hidden" name="action" value="delete">

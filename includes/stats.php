@@ -36,6 +36,7 @@ function stats_events(): array
         'click_phone'       => 'Phone taps',
         'click_book_table'  => 'Book a table taps',
         'click_catering'    => 'Cakes & catering taps',
+        'click_wholesale'   => 'Wholesale taps',
         'click_menu'        => 'Menu taps',
         'click_gallery'     => 'Gallery taps',
         'click_instagram'   => 'Instagram taps',
@@ -44,6 +45,7 @@ function stats_events(): array
         'click_review'      => 'Google review taps',
         'booking_form_start'  => 'Started a booking',
         'catering_form_start' => 'Started a catering enquiry',
+        'wholesale_form_start' => 'Started a wholesale enquiry',
         'gallery_open'      => 'Photos opened',
         'menu_section'      => 'Menu sections jumped to',
     ];
@@ -346,12 +348,30 @@ function stats_enquiries(string $from, string $to): array
     return stats_query(function (PDO $pdo) use ($from, $to) {
         $st = $pdo->prepare(
             "SELECT COUNT(*) AS n, COALESCE(SUM(estimate_total), 0) AS est FROM catering_enquiries
-             WHERE created_at >= ? AND created_at < ?"
+             WHERE created_at >= ? AND created_at < ? AND source <> 'wholesale'"
         );
         $st->execute([$from . ' 00:00:00', stats_day_after($to)]);
         $row = $st->fetch() ?: [];
         return ['enquiries' => (int) ($row['n'] ?? 0), 'estimate' => (int) ($row['est'] ?? 0)];
     }, ['enquiries' => 0, 'estimate' => 0]);
+}
+
+/**
+ * Wholesale enquiries in the period, and how many of them were won (marked
+ * "booked" on the staff screen).
+ */
+function stats_wholesale(string $from, string $to): array
+{
+    return stats_query(function (PDO $pdo) use ($from, $to) {
+        $st = $pdo->prepare(
+            "SELECT COUNT(*) AS n, SUM(CASE WHEN status = 'booked' THEN 1 ELSE 0 END) AS won
+             FROM catering_enquiries
+             WHERE created_at >= ? AND created_at < ? AND source = 'wholesale'"
+        );
+        $st->execute([$from . ' 00:00:00', stats_day_after($to)]);
+        $row = $st->fetch() ?: [];
+        return ['enquiries' => (int) ($row['n'] ?? 0), 'won' => (int) ($row['won'] ?? 0)];
+    }, ['enquiries' => 0, 'won' => 0]);
 }
 
 function stats_day_after(string $day): string
@@ -444,8 +464,9 @@ function stats_monthly_set(string $month, array $values): bool
  * @param array $a  stats_assumptions()
  * @param int   $days  length of the period, to scale the monthly cost
  */
-function stats_roi(array $t, array $b, array $c, array $a, int $days): array
+function stats_roi(array $t, array $b, array $c, array $a, int $days, array $w = ['enquiries' => 0, 'won' => 0]): array
 {
+    $account = (float) ($a['wholesale_account'] ?? 0);
     $lines = [
         'bookings' => [
             'label'   => 'Table bookings',
@@ -471,6 +492,13 @@ function stats_roi(array $t, array $b, array $c, array $a, int $days): array
             'label'   => 'Cake & catering enquiries',
             'working' => sprintf('%d enquiries, quoted at €%d (not all will go ahead)', $c['enquiries'], $c['estimate']),
             'value'   => (float) $c['estimate'],
+        ],
+        'wholesale' => [
+            'label'   => 'Wholesale accounts',
+            'working' => $account > 0
+                ? sprintf('%d won of %d %s × €%.2f a month', $w['won'], $w['enquiries'], $w['enquiries'] === 1 ? 'enquiry' : 'enquiries', $account)
+                : sprintf('%d won of %d %s (set what an account is worth below)', $w['won'], $w['enquiries'], $w['enquiries'] === 1 ? 'enquiry' : 'enquiries'),
+            'value'   => $w['won'] * $account * $days / 30,
         ],
     ];
 

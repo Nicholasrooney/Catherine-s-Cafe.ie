@@ -186,42 +186,53 @@ function catering_create_table(PDO $pdo): void
 function catering_column_migrations(): array
 {
     return [
-        'location' => "ALTER TABLE catering_enquiries ADD COLUMN location VARCHAR(200) NOT NULL DEFAULT ''",
+        'location'      => "ALTER TABLE catering_enquiries ADD COLUMN location VARCHAR(200) NOT NULL DEFAULT ''",
+        // Wholesale enquiries (wholesale.php) share this table.
+        'business_type' => "ALTER TABLE catering_enquiries ADD COLUMN business_type VARCHAR(40) NOT NULL DEFAULT ''",
+        'business'      => "ALTER TABLE catering_enquiries ADD COLUMN business VARCHAR(120) NOT NULL DEFAULT ''",
+        'products'      => "ALTER TABLE catering_enquiries ADD COLUMN products VARCHAR(255) NOT NULL DEFAULT ''",
+        'frequency'     => "ALTER TABLE catering_enquiries ADD COLUMN frequency VARCHAR(40) NOT NULL DEFAULT ''",
     ];
 }
 
 /**
- * Runs a query, creating the table or a newer column once and retrying if
- * either is missing.
+ * Runs a query, creating the table or newer columns as needed and retrying.
+ * A database from before several columns existed trips over them one at a
+ * time, so it keeps going until the query runs or nothing is left to add.
  */
 function catering_query(callable $work)
 {
-    $pdo = db();
+    $pdo   = db();
+    $added = [];
 
-    try {
-        return $work($pdo);
-    } catch (PDOException $e) {
-        $msg = $e->getMessage();
-        $missing = stripos($msg, 'catering_enquiries') !== false
-            && (stripos($msg, "doesn't exist") !== false || stripos($msg, 'no such table') !== false);
-
-        if ($missing) {
-            catering_create_table($pdo);
+    while (true) {
+        try {
             return $work($pdo);
-        }
+        } catch (PDOException $e) {
+            $msg = $e->getMessage();
+            $missing = stripos($msg, 'catering_enquiries') !== false
+                && (stripos($msg, "doesn't exist") !== false || stripos($msg, 'no such table') !== false);
 
-        foreach (catering_column_migrations() as $column => $ddl) {
-            $mentions = stripos($msg, $column) !== false
-                && (stripos($msg, 'unknown column') !== false
-                    || stripos($msg, 'no such column') !== false
-                    || stripos($msg, 'has no column') !== false);
-            if ($mentions) {
-                $pdo->exec($ddl);
-                return $work($pdo);
+            if ($missing && !isset($added['table'])) {
+                catering_create_table($pdo);
+                $added['table'] = true;
+                continue;
             }
-        }
 
-        throw $e;
+            foreach (catering_column_migrations() as $column => $ddl) {
+                $mentions = stripos($msg, $column) !== false
+                    && (stripos($msg, 'unknown column') !== false
+                        || stripos($msg, 'no such column') !== false
+                        || stripos($msg, 'has no column') !== false);
+                if ($mentions && !isset($added[$column])) {
+                    $pdo->exec($ddl);
+                    $added[$column] = true;
+                    continue 2;
+                }
+            }
+
+            throw $e;
+        }
     }
 }
 
@@ -234,10 +245,11 @@ function catering_save(array $d): int
         $now = db_now();
         $stmt = $pdo->prepare(
             'INSERT INTO catering_enquiries
-                (source, name, phone, email, occasion, event_date, guests, location, package,
+                (source, name, phone, email, occasion, event_date, guests, location,
+                 business, business_type, products, frequency, package,
                  price_per_person, estimate_total, fulfilment, delivery_address, notes,
                  marketing_consent, status, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $d['source'] ?? 'full_form',
@@ -248,6 +260,10 @@ function catering_save(array $d): int
             ($d['event_date'] ?? '') !== '' ? $d['event_date'] : null,
             (int) $d['guests'],
             mb_substr(trim((string) ($d['location'] ?? '')), 0, 200),
+            mb_substr(trim((string) ($d['business'] ?? '')), 0, 120),
+            $d['business_type'] ?? '',
+            mb_substr((string) ($d['products'] ?? ''), 0, 255),
+            $d['frequency'] ?? '',
             $d['package'] ?? '',
             $d['price_per_person'] ?? null,
             $d['estimate_total'] ?? null,
@@ -273,16 +289,26 @@ function catering_get(int $id): ?array
 }
 
 /**
- * Enquiries newest first, optionally only one status.
+ * Enquiries newest first, optionally only one status and only one kind
+ * ('catering' or 'wholesale').
  */
-function catering_list(?string $status = null, int $limit = 200): array
+function catering_list(?string $status = null, int $limit = 200, ?string $kind = null): array
 {
-    return catering_query(function (PDO $pdo) use ($status, $limit) {
-        $sql  = 'SELECT * FROM catering_enquiries';
-        $args = [];
+    return catering_query(function (PDO $pdo) use ($status, $limit, $kind) {
+        $sql   = 'SELECT * FROM catering_enquiries';
+        $where = [];
+        $args  = [];
         if ($status !== null && isset(catering_statuses()[$status])) {
-            $sql   .= ' WHERE status = ?';
-            $args[] = $status;
+            $where[] = 'status = ?';
+            $args[]  = $status;
+        }
+        if ($kind === 'wholesale') {
+            $where[] = "source = 'wholesale'";
+        } elseif ($kind === 'catering') {
+            $where[] = "source <> 'wholesale'";
+        }
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
         }
         $sql .= ' ORDER BY created_at DESC, id DESC LIMIT ' . (int) $limit;
 

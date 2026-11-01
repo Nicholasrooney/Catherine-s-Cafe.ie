@@ -145,6 +145,18 @@ $featured = [
 </section>
 <?php endif; ?>
 
+<?php if (!empty($wholesale['enabled'])): ?>
+<section class="section wholesale-teaser" aria-labelledby="wholesale-teaser-title">
+    <div class="container catering-teaser-inner">
+        <div>
+            <h2 id="wholesale-teaser-title">Run a café or shop?</h2>
+            <p>Stock our fresh cream cakes, slices, doughnuts and scones, baked every morning on Meath Street.</p>
+        </div>
+        <a class="btn btn-green" href="wholesale.php">Wholesale &amp; trade prices</a>
+    </div>
+</section>
+<?php endif; ?>
+
 <section class="section visit">
     <div class="container visit-grid">
         <div>

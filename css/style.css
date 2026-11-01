@@ -1133,6 +1133,36 @@ a:hover { color: var(--fascia-deep); }
 .catering-teaser h2 { color: var(--white); margin-bottom: 0.35rem; }
 .catering-teaser p { color: rgba(255, 255, 255, 0.85); margin: 0; }
 
+/* ---------- Wholesale ---------- */
+
+.wholesale-teaser { background: var(--shopfront); padding: clamp(2.25rem, 5vw, 3.25rem) 0; }
+.wholesale-teaser h2 { color: var(--fascia); margin-bottom: 0.35rem; }
+.wholesale-teaser p { color: var(--fascia); margin: 0; }
+.wholesale-hero-photo {
+  width: 100%;
+  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.wholesale-hero .hero-actions { margin-top: 1.75rem; }
+.wholesale-range {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+.wholesale-item {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.wholesale-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.wholesale-item h3 { margin: 1rem 1.15rem 0.35rem; }
+.wholesale-item p { margin: 0 1.15rem 1.15rem; color: var(--muted); }
+
 /* Location box on the catering price card: full width, outside the phone/email row. */
 .pc-location { display: block; width: 100%; }
 

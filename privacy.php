@@ -49,6 +49,14 @@ $updated = 'November 2026';
        catering. Enquiries that go quiet are deleted <?= (int) ($booking['retention_months'] ?? 24) ?> months
        after they were last updated.</p>
 
+    <h2>When you ask about wholesale</h2>
+    <p>If you use our wholesale page, we keep what you send us: your business name,
+       the kind of business, where you are, what you're interested in and how often,
+       your name, phone number, email and any notes.</p>
+    <p>We use it only to send you our trade prices and, if you go ahead, to supply
+       you. Enquiries that go quiet are deleted <?= (int) ($booking['retention_months'] ?? 24) ?> months
+       after they were last updated.</p>
+
     <h2>Marketing emails</h2>
     <p>We only email you about offers and events if you ticked the box asking us
        to. That is separate from booking a table, and your booking is unaffected

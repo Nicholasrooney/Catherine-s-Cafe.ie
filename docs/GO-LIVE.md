@@ -43,7 +43,8 @@ includes the visitors who decline cookies.
 
 What it shows:
 - **Visitors**, **directions taps**, **order taps** split by Flipdish, Just Eat and
-  Deliveroo, **phone taps**, **real table bookings** and **cake and catering enquiries**.
+  Deliveroo, **phone taps**, **real table bookings**, **cake and catering enquiries** and
+  **wholesale enquiries** (with how many were won).
   Each comes with the change against the previous period.
 - A day-by-day chart, where visitors came from (Google, Instagram, Facebook and so on),
   which map app people used, and which pages they read.
@@ -92,4 +93,13 @@ dashboard doesn't depend on it.
 - [ ] Table booking limits: up to 4 guests and 2 bookings an hour. Are those right for
       the room?
 - [ ] Cake and catering minimum of 6 people. Notice needed for a celebration cake?
+- [ ] **Wholesale.** The page publishes no prices, minimums or delivery days on purpose.
+      Before the first enquiry, Catherine needs: a trade price list, a minimum order,
+      delivery area and days (or collection only), an order cut-off time, and written
+      allergen information for every product (she must give it to businesses she
+      supplies). Does she want to offer samples? The form has an "I'd like to try
+      samples first" box.
+- [ ] When a wholesale enquiry becomes a customer, mark it **Booked** in Staff →
+      Catering & wholesale. Set "What a wholesale account is worth a month" on the
+      stats page so the dashboard can value it.
 - [ ] Catherine's email for alerts.

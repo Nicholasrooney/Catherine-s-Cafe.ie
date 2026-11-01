@@ -313,6 +313,45 @@ $catering = [
 ];
 
 /*
+ * Wholesale (wholesale.php): the bakery supplying cafés, shops and offices.
+ *
+ * Enquiries are stored with the catering ones (source 'wholesale') and land
+ * in the same staff screen, so the alert list is $catering['notify_email'].
+ * No trade prices, minimums or delivery days are published here: those go to
+ * each business with the price list, once Catherine has set them.
+ */
+$wholesale = [
+    'enabled' => true,
+
+    // "What kind of business are you?"
+    'business_types' => [
+        'cafe'       => 'Café or coffee shop',
+        'shop'       => 'Shop, deli or newsagent',
+        'restaurant' => 'Restaurant, pub or hotel',
+        'office'     => 'Office, canteen or school',
+        'other'      => 'Something else',
+    ],
+
+    // The range, as the bakery section of the menu describes it.
+    'range' => [
+        'cream_cakes' => ['name' => 'Fresh cream cakes', 'desc' => 'Eclairs, cream slices, cream puffs and cream doughnuts, filled every morning.', 'photo' => 'eclairs-and-cream-slices-selection.jpg'],
+        'traybakes'   => ['name' => 'Traditional slices', 'desc' => 'Fruit slices, chocolate traybakes and squares.', 'photo' => 'traybakes-chocolate-squares.jpg'],
+        'doughnuts'   => ['name' => 'Doughnuts', 'desc' => 'Jam doughnuts and cream doughnut fingers.', 'photo' => 'cream-donut-with-latte.jpg'],
+        'scones'      => ['name' => 'Scones, buns and breads', 'desc' => 'Scones, buns, tarts and loaves.', 'photo' => 'interior-scones-and-breads-display.jpg'],
+        'cakes'       => ['name' => 'Whole cakes', 'desc' => 'Cakes to slice and sell, or for a celebration.', 'photo' => 'interior-cake-display-cabinet.jpg'],
+    ],
+
+    // "How often would you want them?"
+    'frequency' => [
+        'daily'      => 'Every day',
+        'few_weekly' => 'A few times a week',
+        'weekly'     => 'Once a week',
+        'occasional' => 'Now and then, or for events',
+        'unsure'     => 'Not sure yet',
+    ],
+];
+
+/*
  * ROI stats (/staff/stats.php).
  *
  * Every tap on the directions, order, phone, menu and booking buttons is
@@ -331,6 +370,7 @@ $stats = [
         'directions_visit'     => 40,     // % of "directions" taps that turn up
         'call_conversion'      => 30,     // % of calls that become a sale
         'monthly_cost'         => 0.00,   // € the website and marketing cost a month
+        'wholesale_account'    => 0.00,   // € a won wholesale account is worth a month (set once known)
     ],
 ];
 

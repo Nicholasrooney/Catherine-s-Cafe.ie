@@ -14,6 +14,7 @@ $nav = [
     'menu'     => ['Menu', 'menu.php'],
     'order'    => ['Order online', 'order.php'],
     'catering' => ['Cakes & catering', 'event-catering.php'],
+    'wholesale' => ['Wholesale', 'wholesale.php'],
     'gallery'  => ['Gallery', 'gallery.php'],
     'booking'  => ['Book a table', 'booking.php'],
 ];
@@ -21,6 +22,9 @@ $nav = [
 // Catering is switched off in config, so it leaves the menu too.
 if (empty($catering['enabled'])) {
     unset($nav['catering']);
+}
+if (empty($wholesale['enabled'])) {
+    unset($nav['wholesale']);
 }
 
 $hasLogo = file_exists(__DIR__ . '/../images/logo.png');

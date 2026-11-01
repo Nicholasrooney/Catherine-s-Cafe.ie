@@ -33,6 +33,11 @@ the facts still to confirm with Catherine.
   `js/main.js` recognises links by their destination, so a new order or directions
   button is counted automatically. `includes/analytics.php` sends every event to our
   stats always, and to GA4 only after consent.
+- `wholesale.php` + `includes/wholesale.php` + `includes/wholesale-handler.php`: the trade
+  page. Its enquiries are rows in `catering_enquiries` with `source = 'wholesale'` (columns
+  `business`, `business_type`, `products`, `frequency` are added lazily on the live DB).
+  `$wholesale` in config holds the range, business types and frequencies. No trade
+  prices, minimums or delivery promises go on the page until Catherine sets them.
 - Raw photos, reviews and scraped menus live in `Extras/` (gitignored).
   `Extras/photo-manifest.md` lists every image.
 
@@ -42,7 +47,7 @@ There is now a portable PHP at `C:\Users\Nicholas Rooney\tools\php83\php.exe`.
 
 ```bash
 PHP="/c/Users/Nicholas Rooney/tools/php83/php.exe"
-for t in db/test.php db/test-seo.php db/test-setup.php db/test-catering.php db/test-weekend.php db/test-stats.php; do "$PHP" $t | tail -1; done
+for t in db/test.php db/test-seo.php db/test-setup.php db/test-catering.php db/test-weekend.php db/test-stats.php db/test-wholesale.php; do "$PHP" $t | tail -1; done
 ```
 
 Keep the tests business-agnostic: the hours tests use a fixed test week, and the alert

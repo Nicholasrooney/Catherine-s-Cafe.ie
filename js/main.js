@@ -285,6 +285,7 @@ function cookieChoice(set) {
     if (/waze\.com/.test(href))            return { name: 'click_directions', app: 'waze' };
     if (/google\.[a-z.]+\/maps/.test(href)) return { name: 'click_directions', app: 'google_maps' };
     if (/event-catering/.test(href))       return { name: 'click_catering' };
+    if (/wholesale\.php/.test(href))       return { name: 'click_wholesale' };
     if (/order\.php/.test(href))           return { name: 'click_order_page' };
     if (/booking\.php/.test(href))         return { name: 'click_book_table' };
     if (/menu\.php/.test(href))            return { name: 'click_menu' };
@@ -425,6 +426,16 @@ function cookieChoice(set) {
     );
     if (errors.length) track('catering_form_error', { fields: errors.join(',') });
   }
+
+  var trade = document.querySelector('.wholesale-form');
+  if (trade) {
+    trade.addEventListener('focusin', function once() {
+      trade.removeEventListener('focusin', once);
+      track('wholesale_form_start', {});
+    });
+  }
+  var traded = document.querySelector('[data-track-view="wholesale_enquiry_submitted"]');
+  if (traded) track('wholesale_enquiry_submitted', { label: traded.dataset.type || '' });
 
   var done = document.querySelector('[data-track-view="catering_enquiry_submitted"]');
   if (done) {

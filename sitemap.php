@@ -22,6 +22,9 @@ $pages = [
 if (!empty($catering['enabled'])) {
     $pages['event-catering.php'] = ['monthly', '0.9'];
 }
+if (!empty($wholesale['enabled'])) {
+    $pages['wholesale.php'] = ['monthly', '0.8'];
+}
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";

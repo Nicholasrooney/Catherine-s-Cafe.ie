@@ -59,8 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $t        = stats_totals($from, $to);
 $b        = stats_bookings($from, $to);
 $c        = stats_enquiries($from, $to);
+$w        = stats_wholesale($from, $to);
 $a        = stats_assumptions();
-$roi      = stats_roi($t, $b, $c, $a, $days);
+$roi      = stats_roi($t, $b, $c, $a, $days, $w);
 $daily    = stats_daily($from, $to, ['click_directions', 'click_order', 'click_phone']);
 $sources  = stats_breakdown($from, $to, 'page_view', 'source');
 $pages    = stats_breakdown($from, $to, 'page_view', 'page');
@@ -174,6 +175,11 @@ staff_head('Stats', 'stats', true);
         <strong><?= number_format($c['enquiries']) ?></strong>
         <span class="tile-note"><?= $c['estimate'] ? 'quoted ' . money($c['estimate']) : 'real enquiries' ?></span>
     </div>
+    <div class="tile">
+        <span class="tile-label">Wholesale enquiries</span>
+        <strong><?= number_format($w['enquiries']) ?></strong>
+        <span class="tile-note"><?= number_format($w['won']) ?> won · cafés &amp; shops</span>
+    </div>
 </section>
 
 <p class="stats-rate sub">
@@ -246,7 +252,7 @@ staff_head('Stats', 'stats', true);
     </section>
     <section class="card">
         <h2>Most viewed pages</h2>
-        <?php bars($pages, ['/' => 'Home', '/index.php' => 'Home', '/menu.php' => 'Menu', '/booking.php' => 'Book a table', '/order.php' => 'Order online', '/gallery.php' => 'Gallery', '/event-catering.php' => 'Cakes & catering', '/privacy.php' => 'Privacy']); ?>
+        <?php bars($pages, ['/' => 'Home', '/index.php' => 'Home', '/menu.php' => 'Menu', '/booking.php' => 'Book a table', '/order.php' => 'Order online', '/gallery.php' => 'Gallery', '/event-catering.php' => 'Cakes & catering', '/wholesale.php' => 'Wholesale', '/privacy.php' => 'Privacy']); ?>
         <h2 class="mt">Phones vs computers</h2>
         <?php bars($devices); ?>
     </section>
@@ -284,6 +290,7 @@ staff_head('Stats', 'stats', true);
             <label>% of order taps that order<input name="order_tap_conversion" inputmode="numeric" value="<?= e($a['order_tap_conversion']) ?>"></label>
             <label>% of directions taps that come in<input name="directions_visit" inputmode="numeric" value="<?= e($a['directions_visit']) ?>"></label>
             <label>% of calls that become a sale<input name="call_conversion" inputmode="numeric" value="<?= e($a['call_conversion']) ?>"></label>
+            <label>What a wholesale account is worth a month (€)<input name="wholesale_account" inputmode="decimal" value="<?= e($a['wholesale_account']) ?>"></label>
             <label>Website &amp; marketing cost a month (€)<input name="monthly_cost" inputmode="decimal" value="<?= e($a['monthly_cost']) ?>"></label>
             <button class="btn-p" type="submit">Save assumptions</button>
         </form>
