@@ -414,6 +414,23 @@ a:hover { color: var(--fascia-deep); }
 .order-page { padding-top: 0; }
 .order-help { margin-top: 1.75rem; color: var(--muted); }
 
+/* Home page: the order cards are the main call to action, so make them big. */
+.order-band .order-grid { gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.order-band .order-card { padding: 2.5rem 2.25rem 2.25rem; border-top-width: 10px; gap: 0.5rem; }
+.order-band .order-name { font-size: clamp(2.5rem, 7vw, 3.75rem); line-height: 1.05; }
+.order-band .order-sub { font-size: 1.35rem; margin-bottom: 1.5rem; }
+.order-band .order-go {
+  margin-top: auto;
+  padding: 1.35rem 1.25rem;
+  background: var(--fascia);
+  color: var(--white);
+  border-radius: 6px;
+  text-align: center;
+  font-size: clamp(1.6rem, 5vw, 2.1rem);
+  font-weight: 700;
+}
+.order-band .order-card:hover .order-go { background: var(--ink); }
+
 /* ---------- Reviews ---------- */
 
 .reviews { background: var(--white); }
