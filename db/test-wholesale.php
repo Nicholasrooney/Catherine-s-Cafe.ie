@@ -49,7 +49,7 @@ check('the business name is kept',  $row['business'], 'Thomas St Coffee');
 check('the products are kept',      $row['products'], 'cream_cakes,doughnuts');
 check('it starts as new',           $row['status'], 'new');
 
-catering_save(['source' => 'full_form', 'name' => 'Party', 'guests' => 20, 'occasion' => 'birthday', 'estimate_total' => 300]);
+catering_save(['source' => 'full_form', 'name' => 'Party', 'guests' => 20, 'occasion' => 'communion', 'estimate_total' => 300]);
 check('everything lists both',       count(catering_list(null, 200)), 2);
 check('wholesale lists one',         array_column(catering_list(null, 200, 'wholesale'), 'business'), ['Thomas St Coffee']);
 check('catering leaves wholesale out', array_column(catering_list(null, 200, 'catering'), 'name'), ['Party']);
@@ -75,7 +75,7 @@ fresh_database();
 catering_save($trade);
 $won = catering_save($trade);
 catering_set_status($won, 'booked');
-catering_save(['source' => 'full_form', 'name' => 'Party', 'guests' => 20, 'occasion' => 'birthday', 'estimate_total' => 300]);
+catering_save(['source' => 'full_form', 'name' => 'Party', 'guests' => 20, 'occasion' => 'communion', 'estimate_total' => 300]);
 
 $w = stats_wholesale('2000-01-01', '2100-01-01');
 check('wholesale enquiries counted',  $w['enquiries'], 2);

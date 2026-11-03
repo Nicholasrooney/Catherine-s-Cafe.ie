@@ -34,7 +34,7 @@ $cat_errors   = [];
 
 // What the price card shows before anyone touches it.
 $cat_card = [
-    'occasion' => 'birthday',
+    'occasion' => 'communion',
     'guests'   => 50,
     'location' => '',
     'contact'  => '',

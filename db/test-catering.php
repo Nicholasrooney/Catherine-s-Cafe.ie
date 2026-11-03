@@ -112,7 +112,7 @@ fresh_database();
 
 $id = catering_save([
     'source' => 'price_card', 'phone' => '086 123 4567',
-    'occasion' => 'birthday', 'guests' => 50, 'package' => 'breakfast_rolls',
+    'occasion' => 'communion', 'guests' => 50, 'package' => 'breakfast_rolls',
     'price_per_person' => 15.5, 'estimate_total' => 775,
 ]);
 check('saved', $id > 0, true);
@@ -207,7 +207,7 @@ foreach ($menu as $sectionData) {
 }
 check('no euro sign survives anywhere in the menu text', $leftover, []);
 
-$lines = catering_summary_lines(['occasion' => 'birthday', 'guests' => 30, 'package' => 'breakfast_rolls']);
+$lines = catering_summary_lines(['occasion' => 'communion', 'guests' => 30, 'package' => 'breakfast_rolls']);
 check('an email with no price shown has no price line',
     count(array_filter($lines, fn($l) => str_starts_with($l, 'Price'))), 0);
 

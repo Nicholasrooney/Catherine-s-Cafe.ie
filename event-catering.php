@@ -37,7 +37,7 @@ require __DIR__ . '/includes/catering-handler.php';
 
 $pageTitle       = "Celebration Cakes & Catering Dublin 8 | Catherine's Café & Bakery";
 $pageDescription = "Celebration cakes, breakfast roll platters, sandwich platters and hot lunches from Catherine's Café & Bakery on Meath Street, Dublin 8. Get a quote in seconds.";
-$pageKeywords    = 'celebration cakes Dublin 8, communion cakes Dublin, birthday cakes Liberties, office breakfast catering Dublin, sandwich platters Dublin 8, catering Dublin 8';
+$pageKeywords    = 'celebration cakes Dublin 8, communion cakes Dublin, christening cakes Liberties, office breakfast catering Dublin, sandwich platters Dublin 8, catering Dublin 8';
 $activePage      = 'catering';
 $pageImage       = 'images/eclairs-and-cream-slices-selection.jpg';
 
@@ -115,7 +115,7 @@ function cat_error_attrs(array $errors, string $field): string
         <div class="catering-copy">
             <span class="catering-eyebrow">Cakes &amp; catering · Meath Street, Dublin 8</span>
             <h1 id="catering-title">Celebration cakes and catering, from our bakery and café.</h1>
-            <p class="catering-lede">Birthday and communion cakes, breakfast rolls for the office, sandwich
+            <p class="catering-lede">Communion and christening cakes, breakfast rolls for the office, sandwich
                 platters and hot lunches for <?= (int) $catering['min_guests'] ?> to <?= (int) $catering['max_guests'] ?>
                 people, made in our own kitchen and bakery. Collect it from Meath Street.</p>
             <ul class="catering-proof">

@@ -264,7 +264,6 @@ $catering = [
     // Pills on the price card. Each suggests a starting package; the visitor
     // can switch.
     'occasions' => [
-        'birthday'       => ['label' => 'Birthday cake',            'package' => 'celebration_cake'],
         'office_brekkie' => ['label' => 'Office breakfast',         'package' => 'breakfast_rolls'],
         'office_lunch'   => ['label' => 'Office lunch',             'package' => 'sandwich_platters'],
         'communion'      => ['label' => 'Communion or christening', 'package' => 'celebration_cake'],

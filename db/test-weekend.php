@@ -110,37 +110,49 @@ check('the old value is still on disk, just irrelevant',
 
 section('What a customer sees');
 
+/*
+ * The live checks below read the real clock (a pause only counts for the
+ * weekend being offered now), so they use this week's dates rather than a
+ * fixed week that would go stale once its Sunday passed.
+ */
+$sunDay = new DateTimeImmutable(hours_weekend_id(), new DateTimeZone('Europe/Dublin'));
+$sun  = $sunDay->format('Y-m-d');
+$sat  = $sunDay->modify('-1 day')->format('Y-m-d');
+$fri  = $sunDay->modify('-2 days')->format('Y-m-d');
+$mid  = $sunDay->modify('-4 days')->format('Y-m-d');
+$next = $sunDay->modify('+6 days')->format('Y-m-d');
+
 $blocked = [];   // no hand-written dates, so only the toggle is in play
 
-pause_on('2026-10-29');
+pause_on($mid);
 settings_forget();
 
 check('the paused Saturday is refused',
-    hours_blocked_message('2026-10-31', $blocked),
+    hours_blocked_message($sat, $blocked),
     'We are not taking any more bookings this weekend.');
-check('so is the Friday',  hours_blocked_message('2026-10-30', $blocked) !== null, true);
-check('so is the Sunday',  hours_blocked_message('2026-11-01', $blocked) !== null, true);
-check('midweek is untouched', hours_blocked_message('2026-10-29', $blocked), null);
+check('so is the Friday',  hours_blocked_message($fri, $blocked) !== null, true);
+check('so is the Sunday',  hours_blocked_message($sun, $blocked) !== null, true);
+check('midweek is untouched', hours_blocked_message($mid, $blocked), null);
 check('and so is the weekend after',
-    hours_blocked_message('2026-11-07', $blocked), null);
+    hours_blocked_message($next, $blocked), null);
 
-check('a paused day takes no bookings',   hours_takes_bookings('2026-10-31'), false);
-check('but the café is still open on it', hours_is_open('2026-10-31'), true);
+check('a paused day takes no bookings',   hours_takes_bookings($sat), false);
+check('but the café is still open on it', hours_is_open($sat), true);
 // The form's own slot list is checked against the running site instead:
 // booking-handler.php starts a session when included, so it is not safe to
 // pull into a CLI suite.
 check('the café still has hours that day',
-    count(hours_slots_for_date('2026-10-31')) > 0, true);
+    count(hours_slots_for_date($sat)) > 0, true);
 
 // A reason somebody typed by hand is more specific, so it wins.
 check('a hand-written reason beats the generic weekend wording',
-    hours_blocked_message('2026-10-31', ['2026-10-31' => 'Private function.']),
+    hours_blocked_message($sat, [$sat => 'Private function.']),
     'Private function.');
 
 setting_set('paused_weekend', null);
 settings_forget();
 check('re-opening lets the day take bookings again',
-    hours_takes_bookings('2026-10-31'), true);
+    hours_takes_bookings($sat), true);
 
 // ------------------------------------------------- bookings are not touched
 
@@ -151,32 +163,32 @@ settings_forget();
 
 $id = booking_create([
     'name' => 'Already Booked', 'phone' => '0871234567', 'email' => 'a@example.com',
-    'date' => '2026-10-31', 'time' => '13:00', 'guests' => 2,
+    'date' => $sat, 'time' => '13:00', 'guests' => 2,
     'seating' => 'Table', 'notes' => '', 'status' => 'confirmed',
 ]);
 check('a booking exists on what will become a paused day', $id > 0, true);
 
 $before = booking_get($id);
 
-pause_on('2026-10-29');
+pause_on($mid);
 settings_forget();
 
 $after = booking_get($id);
 check('the row is byte-for-byte unchanged', $after, $before);
 check('still confirmed',                    $after['status'], 'confirmed');
-check('still there on the day',             count(bookings_for_date('2026-10-31')), 1);
+check('still there on the day',             count(bookings_for_date($sat)), 1);
 check('and still visible to staff',         $after['name'], 'Already Booked');
 
 // Staff can still take a phone booking on a paused day — that is the point of
 // pausing the form rather than closing the day.
 $second = booking_create([
     'name' => 'Phone Booking', 'phone' => '0869999999', 'email' => '',
-    'date' => '2026-10-31', 'time' => '15:00', 'guests' => 3,
+    'date' => $sat, 'time' => '15:00', 'guests' => 3,
     'seating' => 'Stools', 'notes' => 'rang the café', 'status' => 'confirmed',
 ]);
 check('staff can still add one by hand',       $second > 0, true);
-check('both bookings are on the paused day',   count(bookings_for_date('2026-10-31')), 2);
-check('the public form still refuses that day', hours_blocked_message('2026-10-31', []) !== null, true);
+check('both bookings are on the paused day',   count(bookings_for_date($sat)), 2);
+check('the public form still refuses that day', hours_blocked_message($sat, []) !== null, true);
 
 // ------------------------------------------------------------ failing open
 
@@ -187,16 +199,16 @@ section('When the database is unreachable');
  * refuse everybody. An unwanted booking is a phone call; silently refusing a
  * whole weekend the café is open is lost business with no symptom.
  */
-pause_on('2026-10-29');
+pause_on($mid);
 settings_forget();
-check('paused while the database is up', hours_weekend_paused('2026-10-29'), true);
+check('paused while the database is up', hours_weekend_paused($mid), true);
 
 db(db_connect(['driver' => 'sqlite', 'path' => ':memory:']));   // no settings table
 settings_forget();
 
 check('a missing table does not throw',    setting_get('paused_weekend'), null);
-check('and the weekend reads as open',     hours_weekend_paused('2026-10-29'), false);
-check('so the form keeps taking bookings', hours_blocked_message('2026-10-31', []), null);
+check('and the weekend reads as open',     hours_weekend_paused($mid), false);
+check('so the form keeps taking bookings', hours_blocked_message($sat, []), null);
 check('a failed write says so rather than throwing',
     setting_set('paused_weekend', '2026-11-01', 'tester'), true);   // creates the table, then writes
 

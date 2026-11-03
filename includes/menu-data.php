@@ -182,7 +182,7 @@ $menu = [
             ['name' => 'Scones, buns and breads', 'price' => '', 'allergens' => [],
              'desc' => 'Scones, buns, tarts and loaves from the bakery counter.', 'extra' => []],
             ['name' => 'Celebration cakes', 'price' => '', 'allergens' => [],
-             'desc' => 'Birthdays, communions and christenings. Order ahead on the cakes and catering page.', 'extra' => []],
+             'desc' => 'Communions and christenings. Order ahead on the cakes and catering page.', 'extra' => []],
         ],
     ],
     [

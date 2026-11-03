@@ -19,7 +19,7 @@ $pageSchema = [
         'Do you serve a full Irish breakfast?' =>
             'Yes. The full Irish has 2 bacon, 2 sausages, 2 eggs, black and white pudding, hash brown, tomato and mushrooms with brown or white bread. There is a veggie version and a mini breakfast too.',
         'Do you make cakes to order?' =>
-            'Yes. Celebration cakes for birthdays, communions and christenings, plus breakfast and sandwich platters for offices. Send an enquiry from the Cakes & catering page.',
+            'Yes. Celebration cakes for communions and christenings, plus breakfast and sandwich platters for offices. Send an enquiry from the Cakes & catering page.',
     ]),
 ];
 require __DIR__ . '/includes/header.php';
@@ -94,7 +94,7 @@ $featured = [
         <div class="inside-text">
             <h2>Catherine's Bakery, next door</h2>
             <p>Eclairs, cream slices, doughnuts, fruit slices, scones and fresh bread, all on the counter from the morning. Take a box home, or have one with your coffee.</p>
-            <p>Birthday, communion or christening coming up? We make celebration cakes to order.</p>
+            <p>Communion or christening coming up? We make celebration cakes to order.</p>
             <a class="btn btn-green" href="event-catering.php">Order a cake</a>
         </div>
     </div>
